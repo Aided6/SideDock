@@ -28,6 +28,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly Stopwatch _drawerAnimationClock = new();
     private readonly DispatcherTimer _hoverRegionTimer;
     private readonly DispatcherTimer _folderSyncTimer;
+    private readonly DispatcherTimer _repositionTimer;
     private readonly HashSet<ContextMenu> _openMenus = [];
     private readonly List<FileSystemWatcher> _folderWatchers = [];
     private HwndSource? _windowSource;
@@ -75,6 +76,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             FolderSyncTimer_Tick,
             Dispatcher);
         _folderSyncTimer.Stop();
+        _repositionTimer = new DispatcherTimer(
+            TimeSpan.FromSeconds(3),
+            DispatcherPriority.Background,
+            RepositionTimer_Tick,
+            Dispatcher);
+        _repositionTimer.Stop();
         RebuildFolderWatchers();
         DataContext = this;
         Width = Configuration.DrawerWidth;
@@ -126,6 +133,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         };
         _handleWindow.Show();
         PositionAtCursorMonitor(false);
+        ScheduleReposition(TimeSpan.FromSeconds(3));
     }
 
     private void Window_Closed(object? sender, EventArgs e)
@@ -133,6 +141,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         StopDrawerAnimation();
         _hoverRegionTimer.Stop();
         _folderSyncTimer.Stop();
+        _repositionTimer.Stop();
         foreach (var watcher in _folderWatchers) watcher.Dispose();
         _folderWatchers.Clear();
         _outsideClickMonitor.Dispose();
@@ -159,7 +168,30 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             ToggleDrawer();
             handled = true;
         }
+        else if (message == NativeMethods.WmRestoreSideDock)
+        {
+            PositionAtCursorMonitor(true);
+            OpenDrawer();
+            handled = true;
+        }
+        else if (NativeMethods.IsDisplayEnvironmentChange(message, wParam))
+        {
+            ScheduleReposition(TimeSpan.FromMilliseconds(500));
+        }
         return IntPtr.Zero;
+    }
+
+    private void ScheduleReposition(TimeSpan delay)
+    {
+        _repositionTimer.Stop();
+        _repositionTimer.Interval = delay;
+        _repositionTimer.Start();
+    }
+
+    private void RepositionTimer_Tick(object? sender, EventArgs e)
+    {
+        _repositionTimer.Stop();
+        PositionAtCursorMonitor(true);
     }
 
     private void PositionAtCursorMonitor(bool keepCurrentState)

@@ -6,6 +6,12 @@ internal static class NativeMethods
 {
     internal const int HotKeyId = 0x5344;
     internal const int WmHotKey = 0x0312;
+    internal const int WmRestoreSideDock = 0x8044;
+
+    private const int WmSettingChange = 0x001A;
+    private const int WmDisplayChange = 0x007E;
+    private const int WmPowerBroadcast = 0x0218;
+    private const int PbtApmResumeAutomatic = 0x0012;
 
     [DllImport("dwmapi.dll")]
     private static extern int DwmFlush();
@@ -22,6 +28,13 @@ internal static class NativeMethods
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static extern bool UnregisterHotKey(IntPtr window, int id);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr FindWindow(string? className, string windowName);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool PostMessage(IntPtr window, int message, IntPtr wParam, IntPtr lParam);
 
     [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
     private static extern IntPtr GetWindowLongPtr(IntPtr window, int index);
@@ -88,6 +101,18 @@ internal static class NativeMethods
     {
         var style = GetWindowLongPtr(window, -20).ToInt64();
         SetWindowLongPtr(window, -20, new IntPtr(BuildToolWindowExtendedStyle(style)));
+    }
+
+    internal static void NotifyExistingInstance()
+    {
+        var window = FindWindow(null, "SideDock");
+        if (window != IntPtr.Zero) _ = PostMessage(window, WmRestoreSideDock, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    internal static bool IsDisplayEnvironmentChange(int message, IntPtr wParam)
+    {
+        return message is WmSettingChange or WmDisplayChange
+               || message == WmPowerBroadcast && wParam.ToInt32() == PbtApmResumeAutomatic;
     }
 
     internal static void ApplyBlurBehind(IntPtr window)

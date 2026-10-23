@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 
 using SideDock.Models;
+using SideDock.Native;
 using SideDock.Services;
 
 namespace SideDock;
@@ -16,6 +17,7 @@ public partial class App : Application
         _singleInstance = new Mutex(true, "Local\\SideDock.SingleInstance", out var isFirstInstance);
         if (!isFirstInstance)
         {
+            NativeMethods.NotifyExistingInstance();
             Shutdown();
             return;
         }

@@ -6,6 +6,15 @@ namespace SideDock.Tests;
 public sealed class NativeMethodsTests
 {
     [TestMethod]
+    public void Display_environment_messages_request_repositioning()
+    {
+        Assert.IsTrue(NativeMethods.IsDisplayEnvironmentChange(0x001A, IntPtr.Zero));
+        Assert.IsTrue(NativeMethods.IsDisplayEnvironmentChange(0x007E, IntPtr.Zero));
+        Assert.IsTrue(NativeMethods.IsDisplayEnvironmentChange(0x0218, new IntPtr(0x0012)));
+        Assert.IsFalse(NativeMethods.IsDisplayEnvironmentChange(0x0218, IntPtr.Zero));
+    }
+
+    [TestMethod]
     public void BuildToolWindowExtendedStyle_adds_tool_window_and_removes_app_window()
     {
         const long unrelatedStyle = 0x00080000L;
