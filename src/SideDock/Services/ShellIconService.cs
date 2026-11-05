@@ -19,8 +19,11 @@ internal static class ShellIconService
     private static ImageSource LoadIcon(string path)
     {
         var info = new ShellFileInfo();
-        var result = SHGetFileInfo(path, 0, ref info, (uint)Marshal.SizeOf<ShellFileInfo>(), 0x00000101);
-        if (result == IntPtr.Zero || info.Icon == IntPtr.Zero)
+        // Extract the base icon from the shared large-icon list without shortcut overlays.
+        const uint systemIconIndex = 0x00004000;
+        var imageList = SHGetFileInfo(path, 0, ref info, (uint)Marshal.SizeOf<ShellFileInfo>(), systemIconIndex);
+        var icon = imageList == IntPtr.Zero ? IntPtr.Zero : ImageList_GetIcon(imageList, info.IconIndex, 1);
+        if (icon == IntPtr.Zero)
         {
             return new DrawingImage();
         }
@@ -28,7 +31,7 @@ internal static class ShellIconService
         try
         {
             var source = Imaging.CreateBitmapSourceFromHIcon(
-                info.Icon,
+                icon,
                 System.Windows.Int32Rect.Empty,
                 BitmapSizeOptions.FromWidthAndHeight(32, 32));
             source.Freeze();
@@ -36,7 +39,7 @@ internal static class ShellIconService
         }
         finally
         {
-            DestroyIcon(info.Icon);
+            DestroyIcon(icon);
         }
     }
 
@@ -47,6 +50,9 @@ internal static class ShellIconService
         ref ShellFileInfo fileInfo,
         uint size,
         uint flags);
+
+    [DllImport("comctl32.dll")]
+    private static extern IntPtr ImageList_GetIcon(IntPtr imageList, int index, uint flags);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
