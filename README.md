@@ -9,8 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/AidedPolecat6/SideDock/actions/workflows/build.yml"><img src="https://github.com/AidedPolecat6/SideDock/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
-  <a href="https://github.com/AidedPolecat6/SideDock/releases/latest"><img src="https://img.shields.io/github/v/release/AidedPolecat6/SideDock?display_name=tag&sort=semver" alt="Latest release"></a>
+  <a href="https://github.com/Aided6/SideDock/actions/workflows/build.yml"><img src="https://github.com/Aided6/SideDock/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
+  <a href="https://github.com/Aided6/SideDock/releases/latest"><img src="https://img.shields.io/github/v/release/Aided6/SideDock?display_name=tag&sort=semver" alt="Latest release"></a>
   <img src="https://img.shields.io/badge/platform-Windows_10%2F11-0078D4" alt="Windows 10 and 11">
   <img src="https://img.shields.io/badge/.NET-8.0-512BD4" alt=".NET 8">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0-4c1" alt="GPL-3.0 license"></a>
@@ -34,7 +34,7 @@ SideDock stays hidden on the right edge of your screen until you need it. Hover 
 
 ## Download
 
-1. Download `SideDock.exe` from the [latest release](https://github.com/AidedPolecat6/SideDock/releases/latest).
+1. Download `SideDock.exe` from the [latest release](https://github.com/Aided6/SideDock/releases/latest).
 2. Install the [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) if Windows does not already have it.
 3. Put the executable in a permanent folder and run it.
 
